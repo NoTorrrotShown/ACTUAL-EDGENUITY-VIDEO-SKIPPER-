@@ -1,0 +1,78 @@
+// ==UserScript==
+// @name         Progress Bar Maximizer.
+// @namespace    http://tampermonkey.net/
+// @version      1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.
+// @description  Maximizes the progress bar and its components.
+// @author       NoTorrrotShown
+// @match        *.core.learn.edgenuity.com/*
+// @grant        None.
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    async function setElementStyles(el, styles) {
+        for (const [key, value] of Object.entries(styles)) {
+            el.style[key] = value;
+        }
+    }
+
+    function maximizeProgressBar() {
+        const element = document.querySelector('li#uid1_progressContainer');
+        if (!element) return;
+        const parent = element.parentElement;
+        const children = Array.from(element.children);
+        const parentWidth = parseFloat(window.getComputedStyle(parent)['width']);
+
+        setElementStyles(element, {
+            width: `${parentWidth}px`,
+        });
+
+        const newElementWidth = parseFloat(window.getComputedStyle(element)['width']);
+
+        const scrubBar = children.find(child => child.id === 'uid1_scrubBar');
+        const buffered = children.find(child => child.id === 'uid1_buffered');
+        const played = children.find(child => child.id === 'uid1_played');
+        const scrubber = children.find(child => child.id === 'uid1_scrubber');
+
+        if (scrubBar) {
+            setElementStyles(scrubBar, {
+                width: `${newElementWidth - 20}px`,
+                left: '10px',
+                right: '10px',
+            });
+        }
+
+        if (buffered) {
+            const bufferedWidth = parseFloat(window.getComputedStyle(buffered)['width']);
+            setElementStyles(buffered, {
+                width: `${bufferedWidth}px`,
+                left: '10px',
+                right: `${newElementWidth - bufferedWidth - 10}px`,
+            });
+        }
+
+        if (played) {
+            setElementStyles(played, {
+                width: `${newElementWidth - 20}px`,
+                left: '10px',
+                right: '10px',
+            });
+        }
+
+        if (scrubber) {
+            const scrubberWidth = parseFloat(window.getComputedStyle(scrubber)['width']);
+            const scrubberLeft = parseFloat(window.getComputedStyle(scrubber)['left']);
+            setElementStyles(scrubber, {
+                left: `${scrubberLeft + (newElementWidth - 570)}px`,
+            });
+        }
+    }
+
+    // Run the function when the DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', maximizeProgressBar);
+    } else {
+        maximizeProgressBar();
+    }
+})();
